@@ -25,18 +25,13 @@ st.markdown("""
     }
 
     .typewriter-text {
-        overflow: hidden;
         white-space: pre-wrap;
         margin: 0 auto;
-        letter-spacing: .10em;
-        animation: typing 4s steps(40, end);
         font-family: 'Quicksand', sans-serif;
         color: #4a0000;
         font-size: 1.15rem;
         line-height: 1.8;
     }
-
-    @keyframes typing { from { max-height: 0; } to { max-height: 2000px; } }
 
     .letter-box {
         background: rgba(255, 255, 255, 0.25);
@@ -48,7 +43,7 @@ st.markdown("""
         box-shadow: 0 8px 32px 0 rgba(255, 77, 109, 0.2);
     }
 
-    h1 { font-family: 'Dancing Script', cursive; color: #d63031 !important; font-size: 4.5rem !important; text-shadow: 3px 3px 6px rgba(0,0,0,0.1); text-align: center; }
+    h1 { font-family: 'Dancing Script', cursive; color: #d63031 !important; font-size: 4.5rem !important; text-align: center; }
     h2 { font-family: 'Dancing Script', cursive; color: #b33939 !important; font-size: 3rem !important; text-align: center; }
 
     .emoji {
@@ -97,22 +92,23 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- AUDIO PERSISTENCE ENGINE ---
-def get_audio_html():
+# --- AUDIO PERSISTENCE ---
+def play_audio():
     try:
         with open("ademi.mp3", "rb") as f:
             data = f.read()
             b64 = base64.b64encode(data).decode()
-            # The 'id' and unique string ensure it doesn't reset unnecessarily
-            return f"""
-                <div id="audio-container" style="display:none;">
-                    <audio id="bg-music" loop autoplay>
-                        <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
-                    </audio>
-                </div>
+            # This specific HTML structure is more reliable for background playback
+            audio_html = f"""
+                <iframe src="data:audio/mp3;base64,{b64}" allow="autoplay" style="display:none" id="iframeAudio">
+                </iframe>
+                <audio autoplay loop style="display:none">
+                    <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+                </audio>
             """
-    except FileNotFoundError:
-        return ""
+            st.markdown(audio_html, unsafe_allow_html=True)
+    except Exception as e:
+        st.error(f"Error loading audio: {e}")
 
 # --- SPAWN EMOJIS ---
 def spawn_emojis(emoji):
@@ -123,20 +119,20 @@ def spawn_emojis(emoji):
 # --- SESSION STATE ---
 if 'page' not in st.session_state:
     st.session_state.page = 'welcome'
-if 'music_started' not in st.session_state:
-    st.session_state.music_started = False
+if 'play' not in st.session_state:
+    st.session_state.play = False
+
+# --- AUDIO EXECUTION ---
+if st.session_state.play:
+    play_audio()
 
 # --- APP FLOW ---
-
-# Start Music once they move past Welcome
-if st.session_state.music_started:
-    st.markdown(get_audio_html(), unsafe_allow_html=True)
 
 if st.session_state.page == 'welcome':
     st.markdown("<h1>Welcome Ade mii</h1>", unsafe_allow_html=True)
     spawn_emojis("❤️")
     if st.button("Next"):
-        st.session_state.music_started = True
+        st.session_state.play = True  # Unlock audio playback
         st.session_state.page = 'guess'
         st.rerun()
 
@@ -196,6 +192,6 @@ elif st.session_state.page == 'final':
             st.rerun()
     with c2:
         if st.button("Quit"):
-            st.session_state.music_started = False # Stops the music
+            st.session_state.play = False 
             st.markdown("<h3 style='text-align:center;'>Always yours. ❤️</h3>", unsafe_allow_html=True)
             st.stop()
