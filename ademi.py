@@ -1,6 +1,5 @@
 import streamlit as st
 import base64
-import time
 
 # --- CONFIG ---
 st.set_page_config(page_title="For Adekunle Mi", page_icon="❤️", layout="centered")
@@ -10,12 +9,10 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Quicksand:wght@300;500&display=swap');
 
-    /* Custom Heart Cursor */
     html, body, * {
         cursor: url('https://cdn-icons-png.flaticon.com/32/2107/2107844.png'), auto;
     }
 
-    /* Silk Gradient Background */
     .stApp {
         background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fbc2eb, #a18cd1);
         background-size: 400% 400%;
@@ -27,14 +24,12 @@ st.markdown("""
         100% { background-position: 0% 50%; }
     }
 
-    /* Typewriter Animation Effect */
     .typewriter-text {
         overflow: hidden;
-        border-right: .15em solid #ff4d6d;
         white-space: pre-wrap;
         margin: 0 auto;
         letter-spacing: .10em;
-        animation: typing 4s steps(40, end), blink-caret .75s step-end infinite;
+        animation: typing 4s steps(40, end);
         font-family: 'Quicksand', sans-serif;
         color: #4a0000;
         font-size: 1.15rem;
@@ -42,9 +37,7 @@ st.markdown("""
     }
 
     @keyframes typing { from { max-height: 0; } to { max-height: 2000px; } }
-    @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #ff4d6d; } }
 
-    /* Glassmorphism Letter Box */
     .letter-box {
         background: rgba(255, 255, 255, 0.25);
         backdrop-filter: blur(15px);
@@ -53,14 +46,11 @@ st.markdown("""
         border: 1px solid rgba(255, 255, 255, 0.3);
         padding: 40px;
         box-shadow: 0 8px 32px 0 rgba(255, 77, 109, 0.2);
-        margin-top: 20px;
     }
 
-    /* Titles */
-    h1 { font-family: 'Dancing Script', cursive; color: #d63031 !important; font-size: 4.5rem !important; text-shadow: 3px 3px 6px rgba(0,0,0,0.1); }
-    h2 { font-family: 'Dancing Script', cursive; color: #b33939 !important; font-size: 3rem !important; }
+    h1 { font-family: 'Dancing Script', cursive; color: #d63031 !important; font-size: 4.5rem !important; text-shadow: 3px 3px 6px rgba(0,0,0,0.1); text-align: center; }
+    h2 { font-family: 'Dancing Script', cursive; color: #b33939 !important; font-size: 3rem !important; text-align: center; }
 
-    /* Floating Emojis */
     .emoji {
         position: fixed;
         font-size: 3.5rem;
@@ -71,11 +61,9 @@ st.markdown("""
     @keyframes floatUp {
         0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
         10% { opacity: 1; }
-        90% { opacity: 1; }
         100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
     }
 
-    /* Luxury Envelope */
     .envelope-wrapper { display: flex; justify-content: center; padding: 40px; }
     .envelope {
         position: relative;
@@ -98,46 +86,61 @@ st.markdown("""
         font-family: 'Dancing Script', cursive; font-size: 1.5rem; color: #b71c1c;
     }
 
-    /* Buttons */
     .stButton>button {
         background: linear-gradient(135deg, #ff4d6d, #d63031) !important;
         color: white !important;
         border-radius: 50px !important;
-        border: none !important;
         padding: 12px 45px !important;
-        font-weight: bold !important;
-        box-shadow: 0 10px 20px rgba(214, 48, 49, 0.3) !important;
-        transition: 0.4s !important;
+        display: block;
+        margin: 0 auto;
     }
-    .stButton>button:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 15px 25px rgba(214, 48, 49, 0.4) !important; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- FUNCTIONS ---
-def play_music():
+# --- AUDIO PERSISTENCE ENGINE ---
+def get_audio_html():
     try:
         with open("ademi.mp3", "rb") as f:
-            b64 = base64.b64encode(f.read()).decode()
-            st.markdown(f'<audio autoplay loop><source src="data:audio/mp3;base64,{b64}" type="audio/mp3"></audio>', unsafe_allow_html=True)
-    except: pass
+            data = f.read()
+            b64 = base64.b64encode(data).decode()
+            # The 'id' and unique string ensure it doesn't reset unnecessarily
+            return f"""
+                <div id="audio-container" style="display:none;">
+                    <audio id="bg-music" loop autoplay>
+                        <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+                    </audio>
+                </div>
+            """
+    except FileNotFoundError:
+        return ""
 
+# --- SPAWN EMOJIS ---
 def spawn_emojis(emoji):
     import random
     for i in range(15):
         st.markdown(f'<div class="emoji" style="left:{i*7}vw; animation-delay:{random.uniform(0,6)}s;">{emoji}</div>', unsafe_allow_html=True)
 
-# --- APP LOGIC ---
-if 'page' not in st.session_state: st.session_state.page = 'welcome'
+# --- SESSION STATE ---
+if 'page' not in st.session_state:
+    st.session_state.page = 'welcome'
+if 'music_started' not in st.session_state:
+    st.session_state.music_started = False
+
+# --- APP FLOW ---
+
+# Start Music once they move past Welcome
+if st.session_state.music_started:
+    st.markdown(get_audio_html(), unsafe_allow_html=True)
 
 if st.session_state.page == 'welcome':
     st.markdown("<h1>Welcome Ade mii</h1>", unsafe_allow_html=True)
     spawn_emojis("❤️")
     if st.button("Next"):
+        st.session_state.music_started = True
         st.session_state.page = 'guess'
         st.rerun()
 
 elif st.session_state.page == 'guess':
-    play_music()
     st.markdown("<h2>A letter from yours truly...</h2>", unsafe_allow_html=True)
     st.markdown("<p style='text-align:center;'>Guess who?</p>", unsafe_allow_html=True)
     name = st.text_input("", placeholder="Whose heart belongs to you?", key="name_box").lower().strip()
@@ -152,13 +155,15 @@ elif st.session_state.page == 'wrong':
     st.markdown("<h1>Really? 💔</h1>", unsafe_allow_html=True)
     spawn_emojis("💔")
     if st.button("Try Again"):
-        st.session_state.page = 'guess'; st.rerun()
+        st.session_state.page = 'guess'
+        st.rerun()
 
 elif st.session_state.page == 'pre_letter':
     st.markdown("<h1>That is why I love you!</h1>", unsafe_allow_html=True)
     st.markdown('<div class="envelope-wrapper"><div class="envelope"><div class="flap"></div><div class="letter-peek">Open Me, Ade ❤️</div></div></div>', unsafe_allow_html=True)
     if st.button("Open Envelope"):
-        st.session_state.page = 'the_letter'; st.rerun()
+        st.session_state.page = 'the_letter'
+        st.rerun()
 
 elif st.session_state.page == 'the_letter':
     st.markdown("<h2>Adekunle Mi,</h2>", unsafe_allow_html=True)
@@ -178,13 +183,19 @@ You mean more to me than pride, more than ego, more than the past. I choose you.
         </div>
     """, unsafe_allow_html=True)
     if st.button("Read More"):
-        st.session_state.page = 'final'; st.rerun()
+        st.session_state.page = 'final'
+        st.rerun()
 
 elif st.session_state.page == 'final':
     st.markdown("<h1>I love you Ade</h1>", unsafe_allow_html=True)
     spawn_emojis("💖")
     c1, c2 = st.columns(2)
     with c1:
-        if st.button("Restart"): st.session_state.page = 'welcome'; st.rerun()
+        if st.button("Restart"):
+            st.session_state.page = 'welcome'
+            st.rerun()
     with c2:
-        if st.button("Quit"): st.markdown("<h3 style='text-align:center;'>Always yours. ❤️</h3>", unsafe_allow_html=True); st.stop()
+        if st.button("Quit"):
+            st.session_state.music_started = False # Stops the music
+            st.markdown("<h3 style='text-align:center;'>Always yours. ❤️</h3>", unsafe_allow_html=True)
+            st.stop()
