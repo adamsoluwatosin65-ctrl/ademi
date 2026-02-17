@@ -4,97 +4,119 @@ import base64
 # --- CONFIG ---
 st.set_page_config(page_title="For Adekunle Mi", page_icon="❤️", layout="centered")
 
-# --- CUSTOM CSS ---
+# --- ADVANCED BEAUTIFUL CSS ---
 st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Quicksand:wght@300;500&display=swap');
+
+    /* Animated Gradient Background */
     .stApp {
-        background-color: #fff0f3;
+        background: linear-gradient(-45deg, #ffafbd, #ffc3a0, #ffafbd, #ffc3a0);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
     }
-    h1, h2, h3 {
-        color: #ff4d6d !important;
-        text-align: center;
-        font-family: 'Georgia', serif;
-    }
-    .letter-box {
-        background-color: white;
-        padding: 30px;
-        border-radius: 15px;
-        border-left: 5px solid #ff4d6d;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        color: #333;
-        line-height: 1.6;
-        font-size: 1.1rem;
-        text-align: justify;
-        max-height: 400px;
-        overflow-y: auto;
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
 
-    /* Floating Emoji Animation */
+    /* Fine Fonts */
+    h1 { font-family: 'Dancing Script', cursive; color: #d63031 !important; font-size: 4rem !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+    h2, h3, p, div { font-family: 'Quicksand', sans-serif; color: #b33939; font-weight: 500; }
+
+    /* Visible Flying Emojis */
     @keyframes floatUp {
-        0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
-        100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        0% { transform: translateY(110vh) scale(0.5); opacity: 0; }
+        20% { opacity: 1; }
+        100% { transform: translateY(-20vh) scale(1.5); opacity: 0; }
     }
     .emoji {
         position: fixed;
-        bottom: -10vh;
-        font-size: 2rem;
-        animation: floatUp 5s linear infinite;
-        z-index: 0;
+        font-size: 3rem; /* Bigger Emojis */
+        animation: floatUp 6s linear infinite;
+        z-index: 999;
+        pointer-events: none;
     }
 
-    /* Envelope Styles */
-    .envelope-container {
-        position: relative;
-        width: 250px;
-        height: 180px;
-        background: #ff4d6d;
-        margin: 50px auto;
-        border-radius: 0 0 10px 10px;
+    /* Big Beautiful Envelope */
+    .envelope-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 300px;
     }
-    .envelope-flap {
+    .envelope {
+        position: relative;
+        width: 350px; /* Much Bigger */
+        height: 230px;
+        background: #ef5350;
+        border-radius: 0 0 15px 15px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .flap {
         position: absolute;
         top: 0;
         width: 0;
         height: 0;
-        border-left: 125px solid transparent;
-        border-right: 125px solid transparent;
-        border-top: 100px solid #c9184a;
-        z-index: 3;
-        transition: transform 0.8s ease;
+        border-left: 175px solid transparent;
+        border-right: 175px solid transparent;
+        border-top: 140px solid #d32f2f;
         transform-origin: top;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 3;
     }
-    .envelope-container:hover .envelope-flap {
+    .envelope:hover .flap {
         transform: rotateX(180deg);
     }
-    .letter-paper {
+    .letter-inside {
         position: absolute;
         top: 10px;
         left: 25px;
-        width: 200px;
-        height: 120px;
-        background: white;
+        width: 300px;
+        height: 180px;
+        background: #fff;
+        border-radius: 10px;
         z-index: 1;
         display: flex;
         justify-content: center;
         align-items: center;
-        color: #ff4d6d;
-        border-radius: 5px;
+        font-family: 'Dancing Script', cursive;
+        font-size: 1.8rem;
+        color: #d32f2f;
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
     }
 
-    /* Button Styling */
+    /* Elegant Letter Box */
+    .letter-box {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 40px;
+        border-radius: 25px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        font-size: 1.2rem;
+        line-height: 1.8;
+        border: 2px solid #ffafbd;
+    }
+
+    /* Buttons */
     .stButton>button {
-        display: block;
-        margin: 0 auto;
-        border-radius: 30px;
-        background-color: #ff4d6d;
+        background: #d32f2f;
         color: white;
+        border-radius: 50px;
+        padding: 15px 50px;
+        font-size: 1.2rem;
         border: none;
-        padding: 10px 40px;
+        box-shadow: 0 4px 15px rgba(211, 47, 47, 0.4);
+        transition: all 0.3s;
+    }
+    .stButton>button:hover {
+        transform: scale(1.05);
+        background: #b71c1c;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- FUNCTIONS ---
+# --- AUDIO LOGIC ---
 def play_audio():
     try:
         with open("ademi.mp3", "rb") as f:
@@ -104,20 +126,21 @@ def play_audio():
     except:
         pass
 
-def spawn_emojis(emoji_type="❤️"):
-    for i in range(12):
-        pos = i * 8
-        delay = i * 0.5
-        st.markdown(f'<div class="emoji" style="left:{pos}vw; animation-delay:{delay}s;">{emoji_type}</div>', unsafe_allow_html=True)
+# --- EMOJI SPAWNER ---
+def spawn_emojis(emoji_char):
+    import random
+    for i in range(20):
+        left = i * 5
+        delay = random.uniform(0, 5)
+        st.markdown(f'<div class="emoji" style="left:{left}vw; animation-delay:{delay}s;">{emoji_char}</div>', unsafe_allow_html=True)
 
 # --- NAVIGATION ---
 if 'page' not in st.session_state:
     st.session_state.page = 'welcome'
 
 # --- PAGES ---
-
 if st.session_state.page == 'welcome':
-    st.write("# Welcome Ade mii")
+    st.markdown("<h1>Welcome Ade mii</h1>", unsafe_allow_html=True)
     spawn_emojis("❤️")
     if st.button("Next"):
         st.session_state.page = 'guess'
@@ -125,11 +148,10 @@ if st.session_state.page == 'welcome':
 
 elif st.session_state.page == 'guess':
     play_audio()
-    st.write("## A letter from yours truly...")
-    st.write("### Guess who?")
-    name = st.text_input("Input name:", key="name_box").lower().strip()
-    
-    if st.button("Submit"):
+    st.markdown("<h2>A letter from yours truly...</h2>", unsafe_allow_html=True)
+    st.markdown("### Guess who?")
+    name = st.text_input("", placeholder="Enter name here...", key="name_box").lower().strip()
+    if st.button("Open My Heart"):
         valid = ["adenroye", "kanyinsola", "tamilore", "mistura", "baby", "babe"]
         if name in valid:
             st.session_state.page = 'success'
@@ -138,21 +160,29 @@ elif st.session_state.page == 'guess':
         st.rerun()
 
 elif st.session_state.page == 'wrong':
-    st.write("# Really? 💔")
+    st.markdown("<h1>Really? 💔</h1>", unsafe_allow_html=True)
     spawn_emojis("💔")
-    if st.button("Try Again"):
+    if st.button("Please Try Again"):
         st.session_state.page = 'guess'
         st.rerun()
 
 elif st.session_state.page == 'success':
-    st.write("# That is why I love you!")
-    st.markdown('<div class="envelope-container"><div class="envelope-flap"></div><div class="letter-paper">Open Me ✉️</div></div>', unsafe_allow_html=True)
-    if st.button("Open"):
+    st.markdown("<h1>That is why I love you!</h1>", unsafe_allow_html=True)
+    st.markdown("""
+        <div class="envelope-wrapper">
+            <div class="envelope">
+                <div class="flap"></div>
+                <div class="letter-inside">For Adekunle ❤️</div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center;'>Hover to see it open!</p>", unsafe_allow_html=True)
+    if st.button("Open Now"):
         st.session_state.page = 'letter_page'
         st.rerun()
 
 elif st.session_state.page == 'letter_page':
-    st.write("## For Adekunle Mi")
+    st.markdown("<h2>My Dearest Adekunle</h2>", unsafe_allow_html=True)
     st.markdown(f"""
         <div class="letter-box">
         Adekunle mi ,<br><br>
@@ -177,19 +207,19 @@ elif st.session_state.page == 'letter_page':
         I choose the life we can build together. And if you let me, I will spend the rest of my life showing you just how much you are loved.
         </div>
     """, unsafe_allow_html=True)
-    if st.button("Next"):
+    if st.button("Read More"):
         st.session_state.page = 'final'
         st.rerun()
 
 elif st.session_state.page == 'final':
-    st.write("# I love you Ade")
+    st.markdown("<h1>I love you Ade</h1>", unsafe_allow_html=True)
     spawn_emojis("💖")
-    c1, c2 = st.columns(2)
-    with c1:
+    col1, col2 = st.columns(2)
+    with col1:
         if st.button("Restart"):
             st.session_state.page = 'welcome'
             st.rerun()
-    with c2:
+    with col2:
         if st.button("Quit"):
-            st.write("### Always and Forever. ❤️")
+            st.markdown("### Always & Forever ❤️")
             st.stop()
